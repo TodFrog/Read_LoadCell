@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(python test_protocol.py:*)",
+      "Bash(pip install:*)",
+      "Bash(python loadcell_gui.py:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
