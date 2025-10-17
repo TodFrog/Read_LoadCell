@@ -1,0 +1,48 @@
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\bin\Debug\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\bin\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\bin\Debug\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\bin\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset\serialset\obj\Debug\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\bin\Debug\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\bin\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\bin\Debug\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\bin\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset1\serialset\obj\Debug\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Debug\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Debug\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Debug\serialset.pdb
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Debug\serialset.exe.config
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Debug\serialset.exe
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Debug\serialset.pdb
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Debug\serialset.xml
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.vbproj.AssemblyReference.cache
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.Form1.resources
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.Resources.resources
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.vbproj.GenerateResource.cache
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.vbproj.CoreCompileInputs.cache
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.exe
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.xml
+D:\DongSucKim\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Debug\serialset.pdb

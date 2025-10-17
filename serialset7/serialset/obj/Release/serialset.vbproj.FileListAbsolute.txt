@@ -1,0 +1,86 @@
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Release\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\bin\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset2\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\bin\Release\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\bin\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\bin\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\bin\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset3\serialset\obj\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\bin\Release\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\bin\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\bin\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\bin\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset5\serialset\obj\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\obj\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\bin\Release\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\bin\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\bin\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset6\serialset\bin\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\bin\Release\serialset.exe.config
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\bin\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\bin\Release\serialset.pdb
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\bin\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.exe
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.xml
+D:\김동석\비베프로젝트\test_vs2019\serialset7\serialset\obj\Release\serialset.pdb
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\bin\Release\serialset.exe.config
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\bin\Release\serialset.exe
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\bin\Release\serialset.pdb
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\bin\Release\serialset.xml
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.exe
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.xml
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.pdb
+D:\김동석\연구소지원\LOADCELL\loadcell_jig\serialset7\serialset\obj\Release\serialset.vbproj.SuggestedBindingRedirects.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.vbproj.AssemblyReference.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.vbproj.SuggestedBindingRedirects.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.Form1.resources
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.Resources.resources
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.vbproj.GenerateResource.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.vbproj.CoreCompileInputs.cache
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.exe
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.xml
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\obj\Release\serialset.pdb
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Release\serialset.exe.config
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Release\serialset.exe
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Release\serialset.pdb
+D:\김동석\연구소지원\LOADCELL\loadcell_jig_each -v2.0\serialset7\serialset\bin\Release\serialset.xml
