@@ -404,27 +404,37 @@ class LoadCellGUI(QMainWindow):
     def on_read_id(self):
         """Read load cell ID"""
         self.clear_displays(['id'])
-        self.serial.read_id()
+        cmd = LoadCellProtocol.create_id_read_command()
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def on_read_param(self):
         """Read parameters"""
         self.clear_displays(['param'])
-        self.serial.read_parameters()
+        cmd = LoadCellProtocol.create_param_read_command()
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def on_zero_set(self):
         """Set zero point"""
-        self.serial.set_zero()
+        cmd = LoadCellProtocol.create_zero_set_command()
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def on_read_weight(self):
         """Read weight"""
         self.clear_displays(['weight'])
-        self.serial.read_weight()
+        cmd = LoadCellProtocol.create_weight_read_command()
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def on_address_change(self):
         """Change load cell address"""
         new_addr = int(self.addr_combo.currentText())
         self.clear_displays(['address'])
-        self.serial.change_address(new_addr)
+        cmd = LoadCellProtocol.create_address_change_command(new_addr)
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def on_param_write(self):
         """Write parameters"""
@@ -435,10 +445,12 @@ class LoadCellGUI(QMainWindow):
         kind_idx = self.combo_kind.currentIndex()
 
         self.clear_displays(['param'])
-        self.serial.write_parameters(
+        cmd = LoadCellProtocol.create_param_write_command(
             max_weight_idx, division_idx, zero_range_idx,
             down_range_idx, kind_idx
         )
+        self.show_tx_data(cmd)
+        self.serial.send_command(cmd)
 
     def clear_displays(self, display_types):
         """Clear specified display fields"""
