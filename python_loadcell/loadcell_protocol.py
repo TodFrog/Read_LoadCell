@@ -180,15 +180,17 @@ class LoadCellProtocol:
         weight = resolution * raw_weight
 
         # Check sign bit (bit 7 of data[4])
-        # if data[4] & 0x80:
-        #     weight = -weight
+        # If sign bit is set, weight is negative
+        if data[4] & 0x80:
+            weight = -weight
 
         return {
             'status': status,
             'division': division,
             'raw_weight': raw_weight,
             'weight': weight,
-            'resolution': resolution
+            'resolution': resolution,
+            'is_negative': bool(data[4] & 0x80)
         }
 
     @staticmethod
