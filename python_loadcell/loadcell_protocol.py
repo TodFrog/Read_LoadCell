@@ -166,9 +166,11 @@ class LoadCellProtocol:
         status = data[3]
         division = data[4] & 0x0F
 
-        # Raw weight is 3 bytes in format: [high] [mid] [low]
-        # Each byte is in hex format (0x00-0xFF)
-        raw_weight = (data[5] * 0x100) + (data[6] * 0x10) + data[7]
+        # Raw weight is 3 bytes in BCD (Binary Coded Decimal) format
+        # Each byte represents a decimal digit: [hundreds] [tens] [ones]
+        # Example: data[5]=2, data[6]=6, data[7]=0 → 260 (not 0x260!)
+        # Range: 0-999 (wraps at 260 for some sensors)
+        raw_weight = (data[5] * 100) + (data[6] * 10) + data[7]
 
         # Get resolution from table
         if division < len(LoadCellProtocol.RESOLUTION_TABLE):

@@ -86,19 +86,19 @@ def test_parse_id_response():
 def test_parse_weight_response():
     """Test parsing weight response"""
     print("\nTesting weight response parsing...")
-    # Simulated response: addr=1, func=5, reg=2, status=0, division=9(100g), weight bytes: 01 02 03
-    # raw_weight = 0x01*0x100 + 0x02*0x10 + 0x03 = 256 + 32 + 3 = 291
-    # Expected weight: 100g * 291 = 29100g
-    response = bytes([0x01, 0x05, 0x02, 0x00, 0x09, 0x01, 0x02, 0x03])
+    # Simulated response: addr=1, func=5, reg=2, status=0, division=0(0.1g), weight bytes (BCD): 0 4 8
+    # raw_weight (BCD) = 0*100 + 4*10 + 8 = 48
+    # Expected weight: 0.1g * 48 = 4.8g
+    response = bytes([0x01, 0x05, 0x02, 0x00, 0x00, 0x00, 0x04, 0x08])
     result = LoadCellProtocol.parse_weight_response(response)
     print(f"  Response: {' '.join([f'{b:02X}' for b in response])}")
     print(f"  Parsed: {result}")
     assert result is not None, "Failed to parse response"
-    assert result['division'] == 9
-    assert result['resolution'] == 100  # Index 9 in resolution table is 100g
-    assert result['raw_weight'] == 291
-    assert result['weight'] == 29100  # 100 * 291
-    print("  ✓ Weight response parsing test passed")
+    assert result['division'] == 0
+    assert result['resolution'] == 0.1  # Index 0 in resolution table is 0.1g
+    assert result['raw_weight'] == 48  # BCD: 0*100 + 4*10 + 8 = 48
+    assert abs(result['weight'] - 4.8) < 0.01  # 0.1 * 48 = 4.8 (allow floating point error)
+    print("  ✓ Weight response parsing test passed (BCD format)")
 
 
 def test_parse_status_flags():
