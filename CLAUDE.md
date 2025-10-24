@@ -126,7 +126,8 @@ self.zero_offset += self.current_weight  # Cumulative
 ```
 
 ### Function Codes
-- `0x05`: Read command
+- `0x05`: Read response (requested data)
+- `0x06`: Continuous weight updates (auto-sent by sensor)
 - `0x63`: Write command
 
 ### Key Registers
@@ -139,29 +140,58 @@ self.zero_offset += self.current_weight  # Cumulative
 ### Weight Response Format
 ```
 Byte 0: Address
-Byte 1: Function (0x05)
+Byte 1: Function (0x05 or 0x06)
 Byte 2: Register (0x02)
 Byte 3: Status flags
 Byte 4: [S][X][X][X][D][D][D][D]
         ↑              ↑
     Sign bit      Division (0-14)
-Byte 5-7: Raw weight (3 bytes, big-endian-ish)
-         = (data[5] * 0x100) + (data[6] * 0x10) + data[7]
+Bytes 6-7: Raw weight (2-byte BCD format)
+           Each hex nibble = decimal digit
+           Example: 0x0123 = 123 decimal
 ```
 
-**Critical Sign Bit Logic**:
+**BCD Weight Parsing**:
 ```python
+# Bytes 6-7 contain weight in BCD
+byte6 = data[6]  # Thousands/hundreds
+byte7 = data[7]  # Tens/ones
+
+thousands = (byte6 >> 4) & 0x0F
+hundreds = byte6 & 0x0F
+tens = (byte7 >> 4) & 0x0F
+ones = byte7 & 0x0F
+
+raw_weight = (thousands * 1000) + (hundreds * 100) + (tens * 10) + ones
+
+# Check sign bit (bit 7 of data[4])
 if data[4] & 0x80:  # Bit 7 set = negative
     weight = -weight
 ```
 
-### Weight Calculation
+### Final Weight Calculation
 ```python
-raw_weight = (data[5] * 0x100) + (data[6] * 0x10) + data[7]
+# After BCD parsing, apply resolution and sign
 resolution = RESOLUTION_TABLE[division]
 weight = resolution * raw_weight
+
+# Apply sign bit
 if data[4] & 0x80:
     weight = -weight
+```
+
+### Nonlinear Correction
+The load cell sensor has significant nonlinearity, especially in the 50-70g range. A 2nd-order polynomial correction is applied:
+
+```python
+actual_weight = a * measured^2 + b * measured + c
+
+# Coefficients (derived from 7-point calibration):
+a = 0.001261538
+b = 0.715034
+c = 5.158309
+
+# Achieves RMS error of 1.34g across 17g-499g range
 ```
 
 ### Status Flags (Byte 3)
