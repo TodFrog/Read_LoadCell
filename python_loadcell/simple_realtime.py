@@ -229,11 +229,28 @@ class SimpleRealtimeMonitor(QMainWindow):
         # Parse received data
         rx_buffer = self.serial.get_rx_buffer()
 
+        # Debug: Check buffer length
+        if len(rx_buffer) < 8:
+            # Incomplete response - ignore
+            print(f"[DEBUG] Incomplete buffer: {len(rx_buffer)} bytes - {' '.join([f'{b:02X}' for b in rx_buffer])}")
+            self.waiting_for_response = False
+            return
+
         # Try to parse as weight response
         weight_data = LoadCellProtocol.parse_weight_response(rx_buffer)
         if weight_data:
             # Response received successfully
             self.waiting_for_response = False
+
+            # Debug: Print raw bytes
+            raw_value = weight_data['raw_weight']
+            status = weight_data['status']
+
+            # Check for suspicious zero values
+            if raw_value == 0 and self.last_valid_weight > 1.0:
+                print(f"[DEBUG] Suspicious zero! Status=0x{status:02X}, Buffer={' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
+                # Keep last valid weight instead of showing zero
+                return
 
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
@@ -241,8 +258,9 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Apply calibration: (raw - zero) * factor
             self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
 
-            # Save as last valid weight
-            self.last_valid_weight = self.current_weight
+            # Save as last valid weight (only if not zero)
+            if raw_value > 0 or self.current_weight < 0.1:
+                self.last_valid_weight = self.current_weight
 
             # Display calibrated weight
             self.weight_display.setText(f"{self.current_weight:.1f}")
