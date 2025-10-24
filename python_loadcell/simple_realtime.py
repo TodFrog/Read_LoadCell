@@ -42,17 +42,8 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.raw_weight = 0.0
 
         # Calibration
-        self.zero_offset = 0.0  # Zero point offset (applied before curve correction)
-
-        # Nonlinear correction coefficients (quadratic: actual = a*measured^2 + b*measured + c)
-        # Derived from calibration data:
-        # - 17g object: measured 17g
-        # - 51g object: measured 60.3g
-        # - 499g object: measured 403.4g
-        # Using 2nd order polynomial fit
-        self.correction_a = 0.001261538  # x^2 coefficient
-        self.correction_b = 0.715034     # x coefficient
-        self.correction_c = 5.158309     # constant offset
+        self.zero_offset = 0.0  # Zero point offset (raw sensor value)
+        self.calibration_factor = 1.0  # User calibration factor for fine-tuning
 
         # Initialize UI
         self.init_ui()
@@ -140,13 +131,25 @@ class SimpleRealtimeMonitor(QMainWindow):
         )
         cal_layout.addWidget(self.btn_zero)
 
+        self.btn_calibrate = QPushButton("무게 교정")
+        self.btn_calibrate.clicked.connect(self.calibrate_weight)
+        self.btn_calibrate.setEnabled(False)
+        self.btn_calibrate.setFont(button_font)
+        self.btn_calibrate.setMinimumHeight(50)
+        self.btn_calibrate.setStyleSheet(
+            "background-color: #e67e22; color: white; "
+            "border-radius: 5px; font-weight: bold;"
+        )
+        cal_layout.addWidget(self.btn_calibrate)
+
         layout.addLayout(cal_layout)
 
         # Instructions
         instructions = QLabel(
-            "※ 2차 곡선 보정이 적용되어 있습니다 (17g~499g 범위)\n"
-            "1. 아무것도 없는 상태에서 '영점 조절' 클릭\n"
-            "2. 물체를 올리면 자동으로 보정된 무게가 표시됩니다"
+            "1. 빈 상태에서 '영점 조절' 클릭\n"
+            "2. 정확한 무게의 물체를 올림\n"
+            "3. '무게 교정' 클릭 후 실제 무게 입력\n"
+            "※ 압력 분산에 민감하므로 중앙에 위치시키세요"
         )
         instructions.setAlignment(Qt.AlignCenter)
         instructions.setStyleSheet("color: #27ae60; font-size: 11pt; padding: 20px;")
@@ -180,6 +183,7 @@ class SimpleRealtimeMonitor(QMainWindow):
             self.btn_disconnect.setEnabled(True)
             self.port_combo.setEnabled(False)
             self.btn_zero.setEnabled(True)
+            self.btn_calibrate.setEnabled(True)
             self.status_label.setText("상태: 연결됨 ✓")
             self.status_label.setStyleSheet("color: green; font-weight: bold;")
 
@@ -198,6 +202,7 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.btn_disconnect.setEnabled(False)
         self.port_combo.setEnabled(True)
         self.btn_zero.setEnabled(False)
+        self.btn_calibrate.setEnabled(False)
         self.status_label.setText("상태: 연결 안됨")
         self.status_label.setStyleSheet("color: red; font-weight: bold;")
 
@@ -274,18 +279,10 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
-            # Step 1: Apply zero offset
-            zeroed_weight = self.raw_weight - self.zero_offset
+            # Apply calibration: (raw - zero) * factor
+            self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
 
-            # Step 2: Apply nonlinear correction (quadratic curve)
-            # actual = a * measured^2 + b * measured + c
-            self.current_weight = (
-                self.correction_a * (zeroed_weight ** 2) +
-                self.correction_b * zeroed_weight +
-                self.correction_c
-            )
-
-            # Ensure non-negative weight (can't be negative after zero calibration)
+            # Ensure non-negative weight
             if self.current_weight < 0:
                 self.current_weight = 0.0
 
@@ -320,6 +317,63 @@ class SimpleRealtimeMonitor(QMainWindow):
             "border-radius: 5px; font-weight: bold;"
         )
 
+    def calibrate_weight(self):
+        """Calibrate using known weight"""
+        from PyQt5.QtWidgets import QInputDialog
+
+        # Get actual weight from user
+        actual_weight, ok = QInputDialog.getDouble(
+            self,
+            "무게 교정",
+            f"현재 표시값: {self.current_weight:.1f}g\n\n"
+            f"올려놓은 물체의 실제 무게를 입력하세요 (g):",
+            value=100.0,
+            min=0.1,
+            max=10000.0,
+            decimals=1
+        )
+
+        if ok and actual_weight > 0:
+            # Calculate calibration factor
+            # current_weight = (raw - zero) * factor
+            # We want: actual_weight = (raw - zero) * new_factor
+            # So: new_factor = actual_weight / (raw - zero)
+
+            raw_minus_zero = self.raw_weight - self.zero_offset
+
+            if abs(raw_minus_zero) < 0.1:
+                QMessageBox.warning(
+                    self,
+                    "교정 오류",
+                    "영점과 현재 값이 너무 가깝습니다.\n"
+                    "먼저 영점을 조절한 후, 물체를 올리고 교정하세요."
+                )
+                return
+
+            self.calibration_factor = actual_weight / raw_minus_zero
+
+            # Visual feedback
+            self.btn_calibrate.setStyleSheet(
+                "background-color: #27ae60; color: white; "
+                "border-radius: 5px; font-weight: bold;"
+            )
+            QTimer.singleShot(1000, self.reset_calibrate_button_style)
+
+            QMessageBox.information(
+                self,
+                "교정 완료",
+                f"교정이 완료되었습니다!\n\n"
+                f"교정 계수: {self.calibration_factor:.4f}\n"
+                f"입력한 실제 무게: {actual_weight:.1f}g\n"
+                f"현재 센서 원본값: {self.raw_weight:.1f}g"
+            )
+
+    def reset_calibrate_button_style(self):
+        """Reset calibrate button style"""
+        self.btn_calibrate.setStyleSheet(
+            "background-color: #e67e22; color: white; "
+            "border-radius: 5px; font-weight: bold;"
+        )
 
     def closeEvent(self, event):
         """Handle window close event"""
