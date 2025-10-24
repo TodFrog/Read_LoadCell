@@ -215,7 +215,15 @@ class DebugRealtimeMonitor(QMainWindow):
         """Update display with received data"""
         # Show raw hex data
         rx_buffer = self.serial.get_rx_buffer()
-        hex_str = ' '.join([f'{b:02X}' for b in rx_buffer])
+
+        # Add function code indicator
+        if len(rx_buffer) >= 2:
+            func_code = rx_buffer[1]
+            func_name = "READ(0x05)" if func_code == 0x05 else f"FUNC(0x{func_code:02X})"
+            hex_str = f"[{func_name}] " + ' '.join([f'{b:02X}' for b in rx_buffer])
+        else:
+            hex_str = ' '.join([f'{b:02X}' for b in rx_buffer])
+
         self.raw_hex_display.append(hex_str)
 
         # Auto-scroll to bottom and limit lines

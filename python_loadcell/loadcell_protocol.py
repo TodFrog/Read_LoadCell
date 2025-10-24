@@ -157,20 +157,46 @@ class LoadCellProtocol:
         """
         Parse weight read response
 
+        Accepts both:
+        - Function 0x05 (read response)
+        - Function 0x06 (continuous weight updates)
+
         Returns:
             dict with 'status', 'division', 'raw_weight', 'weight' or None if invalid
         """
-        if len(data) < 8 or data[2] != LoadCellProtocol.REG_WEIGHT_READ:
+        if len(data) < 8:
+            return None
+
+        # Check register is weight (0x02)
+        if data[2] != LoadCellProtocol.REG_WEIGHT_READ:
+            return None
+
+        # Accept both function codes: 0x05 (read response) and 0x06 (continuous updates)
+        func_code = data[1]
+        if func_code not in [LoadCellProtocol.FUNC_READ, LoadCellProtocol.REG_ZERO_SET]:
             return None
 
         status = data[3]
         division = data[4] & 0x0F
 
-        # Raw weight is 3 bytes in BCD (Binary Coded Decimal) format
-        # Each byte represents a decimal digit: [hundreds] [tens] [ones]
-        # Example: data[5]=2, data[6]=6, data[7]=0 → 260 (not 0x260!)
-        # Range: 0-999 (wraps at 260 for some sensors)
-        raw_weight = (data[5] * 100) + (data[6] * 10) + data[7]
+        # Raw weight is encoded in bytes 6-7 as 2-byte BCD (Binary Coded Decimal)
+        # Each hex nibble represents a decimal digit: 0x0123 = 123 decimal
+        # Example progression observed: 0x0016 -> 0x0099 -> 0x0100 -> 0x0200 -> 0x1000
+        # Format: [byte6: thousands/hundreds] [byte7: tens/ones]
+        #
+        # Convert BCD to decimal:
+        # - Extract each nibble (hex digit)
+        # - Treat each nibble as a decimal digit
+        byte6 = data[6]  # Thousands and hundreds digits
+        byte7 = data[7]  # Tens and ones digits
+
+        # BCD conversion: 0xAB = (A * 10) + B in decimal
+        hundreds_digit = (byte6 >> 4) & 0x0F  # Upper nibble of byte 6
+        tens_digit = byte6 & 0x0F              # Lower nibble of byte 6
+        ones_decimal_digit = (byte7 >> 4) & 0x0F  # Upper nibble of byte 7
+        final_digit = byte7 & 0x0F             # Lower nibble of byte 7
+
+        raw_weight = (hundreds_digit * 1000) + (tens_digit * 100) + (ones_decimal_digit * 10) + final_digit
 
         # Get resolution from table
         if division < len(LoadCellProtocol.RESOLUTION_TABLE):

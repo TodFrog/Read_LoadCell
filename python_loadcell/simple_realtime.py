@@ -236,16 +236,26 @@ class SimpleRealtimeMonitor(QMainWindow):
             self.waiting_for_response = False
             return
 
-        # IMPORTANT: Check if this is a weight read response
-        # Byte[1] must be 0x05 (read function) and Byte[2] must be 0x02 (weight register)
+        # IMPORTANT: Check if this is a weight response
+        # Sensor sends weight data with EITHER:
+        # - Byte[1] = 0x05 (read response) OR
+        # - Byte[1] = 0x06 (continuous weight updates)
+        # Both use Byte[2] = 0x02 (weight register)
         if len(rx_buffer) >= 3:
             func_code = rx_buffer[1]
             register = rx_buffer[2]
 
-            # Filter out non-weight responses
-            if func_code != 0x05 or register != 0x02:
+            # Accept both 0x05 (read response) and 0x06 (continuous updates)
+            # But register must always be 0x02 for weight data
+            if register != 0x02:
                 print(f"[DEBUG] Not a weight response - Func=0x{func_code:02X}, Reg=0x{register:02X}, ignoring: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
                 self.serial.clear_rx_buffer()  # Clear this junk data
+                self.waiting_for_response = False
+                return
+
+            if func_code not in [0x05, 0x06]:
+                print(f"[DEBUG] Unknown function code - Func=0x{func_code:02X}, ignoring: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
+                self.serial.clear_rx_buffer()
                 self.waiting_for_response = False
                 return
 
