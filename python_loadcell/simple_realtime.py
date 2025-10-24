@@ -45,6 +45,12 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.zero_offset = 0.0  # Zero point offset (raw sensor value)
         self.calibration_factor = 1.0  # User calibration factor for fine-tuning
 
+        # Linear correction (based on 499g calibration data)
+        # Formula: actual = correction_slope * measured + correction_intercept
+        # Derived from 8-point calibration: RMS error 11.16g
+        self.correction_slope = 0.990527
+        self.correction_intercept = -2.990644
+
         # Initialize UI
         self.init_ui()
 
@@ -146,10 +152,11 @@ class SimpleRealtimeMonitor(QMainWindow):
 
         # Instructions
         instructions = QLabel(
+            "※ 선형 보정 적용됨 (RMS 오차 11g)\n"
             "1. 빈 상태에서 '영점 조절' 클릭\n"
-            "2. 정확한 무게의 물체를 올림\n"
+            "2. 정확한 무게의 물체를 올림 (중앙)\n"
             "3. '무게 교정' 클릭 후 실제 무게 입력\n"
-            "※ 압력 분산에 민감하므로 중앙에 위치시키세요"
+            "※ 음수 표시 가능 (20g 미만 측정 지원)"
         )
         instructions.setAlignment(Qt.AlignCenter)
         instructions.setStyleSheet("color: #27ae60; font-size: 11pt; padding: 20px;")
@@ -279,15 +286,21 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
-            # Apply calibration: (raw - zero) * factor
-            self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
+            # Step 1: Apply zero offset
+            zeroed = self.raw_weight - self.zero_offset
 
-            # Ensure non-negative weight
-            if self.current_weight < 0:
-                self.current_weight = 0.0
+            # Step 2: Apply linear correction
+            # actual = correction_slope * measured + correction_intercept
+            corrected = self.correction_slope * zeroed + self.correction_intercept
 
-            # Save as last valid weight (only if not zero)
-            if raw_value > 0 or self.current_weight < 0.1:
+            # Step 3: Apply user calibration factor
+            self.current_weight = corrected * self.calibration_factor
+
+            # Allow negative values (don't force to 0)
+            # This allows proper display of small negative readings
+
+            # Save as last valid weight
+            if raw_value > 0 or abs(self.current_weight) > 0.1:
                 self.last_valid_weight = self.current_weight
 
             # Display calibrated weight

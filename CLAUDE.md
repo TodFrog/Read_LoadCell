@@ -180,19 +180,28 @@ if data[4] & 0x80:
     weight = -weight
 ```
 
-### Nonlinear Correction
-The load cell sensor has significant nonlinearity, especially in the 50-70g range. A 2nd-order polynomial correction is applied:
+### Linear Correction
+The load cell sensor requires linear correction after user calibration. Based on 499g calibration data from 8 measurement points:
 
 ```python
-actual_weight = a * measured^2 + b * measured + c
+actual_weight = correction_slope * measured + correction_intercept
 
-# Coefficients (derived from 7-point calibration):
-a = 0.001261538
-b = 0.715034
-c = 5.158309
+# Coefficients (derived from 8-point calibration after 499g calibration):
+correction_slope = 0.990527
+correction_intercept = -2.990644
 
-# Achieves RMS error of 1.34g across 17g-499g range
+# Achieves RMS error of 11.16g across 51g-537g range
 ```
+
+**Application order:**
+1. Zero offset: `zeroed = raw - zero_offset`
+2. Linear correction: `corrected = 0.990527 * zeroed + (-2.990644)`
+3. User calibration: `final = corrected * calibration_factor`
+
+**Important notes:**
+- Negative values are allowed and displayed (supports <20g measurements)
+- Sensor is pressure-sensitive: place objects in center for consistent readings
+- Different positions (center vs corners) yield different readings
 
 ### Status Flags (Byte 3)
 - Bit 0: Zero error
