@@ -231,10 +231,23 @@ class SimpleRealtimeMonitor(QMainWindow):
 
         # Debug: Check buffer length
         if len(rx_buffer) < 8:
-            # Incomplete response - ignore
+            # Incomplete response - ignore and wait for complete packet
             print(f"[DEBUG] Incomplete buffer: {len(rx_buffer)} bytes - {' '.join([f'{b:02X}' for b in rx_buffer])}")
             self.waiting_for_response = False
             return
+
+        # IMPORTANT: Check if this is a weight read response
+        # Byte[1] must be 0x05 (read function) and Byte[2] must be 0x02 (weight register)
+        if len(rx_buffer) >= 3:
+            func_code = rx_buffer[1]
+            register = rx_buffer[2]
+
+            # Filter out non-weight responses
+            if func_code != 0x05 or register != 0x02:
+                print(f"[DEBUG] Not a weight response - Func=0x{func_code:02X}, Reg=0x{register:02X}, ignoring: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
+                self.serial.clear_rx_buffer()  # Clear this junk data
+                self.waiting_for_response = False
+                return
 
         # Try to parse as weight response
         weight_data = LoadCellProtocol.parse_weight_response(rx_buffer)
