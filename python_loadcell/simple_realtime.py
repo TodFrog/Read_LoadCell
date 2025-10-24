@@ -48,9 +48,13 @@ class SimpleRealtimeMonitor(QMainWindow):
         # Initialize UI
         self.init_ui()
 
-        # Timer for periodic weight reading (30 FPS)
+        # Timer for periodic weight reading
         self.read_timer = QTimer()
         self.read_timer.timeout.connect(self.read_weight)
+
+        # Response tracking to avoid sending too fast
+        self.waiting_for_response = False
+        self.last_valid_weight = 0.0
 
     def init_ui(self):
         """Initialize user interface"""
@@ -182,8 +186,9 @@ class SimpleRealtimeMonitor(QMainWindow):
             self.status_label.setText("상태: 연결됨 ✓")
             self.status_label.setStyleSheet("color: green; font-weight: bold;")
 
-            # Start reading at ~30 FPS (same as loadcell_gui.py button clicks)
-            self.read_timer.start(33)  # 33ms ≈ 30 FPS
+            # Start reading at 20 FPS (50ms interval)
+            # More stable than 30 FPS, gives sensor time to respond
+            self.read_timer.start(50)  # 50ms = 20 FPS
         else:
             QMessageBox.critical(self, "연결 오류", "시리얼 포트 연결에 실패했습니다.")
 
@@ -202,9 +207,13 @@ class SimpleRealtimeMonitor(QMainWindow):
 
     def read_weight(self):
         """Send weight read command - same as loadcell_gui.py on_read_weight()"""
-        if self.is_connected:
+        if self.is_connected and not self.waiting_for_response:
+            # IMPORTANT: Clear buffer before sending new command
+            # to prevent mixing old and new responses
+            self.serial.clear_rx_buffer()
             cmd = LoadCellProtocol.create_weight_read_command()
             self.serial.send_command(cmd)
+            self.waiting_for_response = True
 
     def on_serial_data(self, data):
         """Callback when serial data is received"""
@@ -223,11 +232,17 @@ class SimpleRealtimeMonitor(QMainWindow):
         # Try to parse as weight response
         weight_data = LoadCellProtocol.parse_weight_response(rx_buffer)
         if weight_data:
+            # Response received successfully
+            self.waiting_for_response = False
+
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
             # Apply calibration: (raw - zero) * factor
             self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
+
+            # Save as last valid weight
+            self.last_valid_weight = self.current_weight
 
             # Display calibrated weight
             self.weight_display.setText(f"{self.current_weight:.1f}")
