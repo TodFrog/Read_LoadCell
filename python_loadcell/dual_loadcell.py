@@ -281,15 +281,18 @@ class DualLoadCellMonitor(QMainWindow):
             self.waiting_for_response = False
             return
 
-        # Verify checksum
-        expected_checksum = sum(rx_buffer[:7]) & 0xFF
-        actual_checksum = rx_buffer[7]
+        # DEBUG: Print full buffer
+        print(f"[DEBUG] Full RX buffer ({len(rx_buffer)} bytes): {' '.join([f'{b:02X}' for b in rx_buffer])}")
 
-        if expected_checksum != actual_checksum:
-            print(f"[DEBUG] Checksum mismatch!")
-            self.serial.clear_rx_buffer()
-            self.waiting_for_response = False
-            return
+        # Verify checksum - TEMPORARILY DISABLED FOR DEBUGGING
+        # expected_checksum = sum(rx_buffer[:7]) & 0xFF
+        # actual_checksum = rx_buffer[7]
+        #
+        # if expected_checksum != actual_checksum:
+        #     print(f"[DEBUG] Checksum mismatch!")
+        #     self.serial.clear_rx_buffer()
+        #     self.waiting_for_response = False
+        #     return
 
         # Check if weight response
         if len(rx_buffer) >= 3:

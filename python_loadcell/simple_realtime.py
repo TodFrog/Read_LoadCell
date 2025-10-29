@@ -41,6 +41,11 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.current_weight = 0.0
         self.raw_weight = 0.0
 
+        # Cumulative weight tracking (to prevent sudden decreases)
+        self.last_valid_raw = 0.0
+        self.cumulative_offset = 0  # Tracks 100g rollovers
+        self.enable_cumulative = True  # Enable cumulative mode
+
         # Calibration
         self.zero_offset = 0.0  # Zero point offset (raw sensor value)
         self.calibration_factor = 1.0  # User calibration factor for fine-tuning
@@ -258,19 +263,22 @@ class SimpleRealtimeMonitor(QMainWindow):
                 self.waiting_for_response = False
                 return
 
-        # IMPORTANT: Verify checksum to filter out corrupted/mixed data
-        # This is critical when multiple load cells are on the same USB bus
-        if len(rx_buffer) >= 8:
-            # Checksum is last byte, should equal sum of previous bytes & 0xFF
-            expected_checksum = sum(rx_buffer[:7]) & 0xFF
-            actual_checksum = rx_buffer[7]
+        # DEBUG: Print full buffer
+        print(f"[DEBUG] Full RX buffer ({len(rx_buffer)} bytes): {' '.join([f'{b:02X}' for b in rx_buffer])}")
 
-            if expected_checksum != actual_checksum:
-                print(f"[DEBUG] Checksum mismatch! Expected 0x{expected_checksum:02X}, got 0x{actual_checksum:02X}")
-                print(f"[DEBUG] Buffer: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
-                self.serial.clear_rx_buffer()
-                self.waiting_for_response = False
-                return
+        # IMPORTANT: Verify checksum to filter out corrupted/mixed data
+        # TEMPORARILY DISABLED FOR DEBUGGING - need to see actual response format
+        # if len(rx_buffer) >= 8:
+        #     # Checksum is last byte, should equal sum of previous bytes & 0xFF
+        #     expected_checksum = sum(rx_buffer[:7]) & 0xFF
+        #     actual_checksum = rx_buffer[7]
+        #
+        #     if expected_checksum != actual_checksum:
+        #         print(f"[DEBUG] Checksum mismatch! Expected 0x{expected_checksum:02X}, got 0x{actual_checksum:02X}")
+        #         print(f"[DEBUG] Buffer: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
+        #         self.serial.clear_rx_buffer()
+        #         self.waiting_for_response = False
+        #         return
 
         # IMPORTANT: Check if this is a weight response
         # Sensor sends weight data with EITHER:
@@ -301,26 +309,41 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Response received successfully
             self.waiting_for_response = False
 
-            # Debug: Print raw bytes
+            # Debug: Print detailed weight data
             raw_value = weight_data['raw_weight']
             status = weight_data['status']
+            division = weight_data['division']
+            resolution = weight_data['resolution']
 
-            # Check for suspicious zero values
-            if raw_value == 0 and self.last_valid_weight > 1.0:
-                print(f"[DEBUG] Suspicious zero! Status=0x{status:02X}, Buffer={' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
-                # Keep last valid weight instead of showing zero
-                return
+            print(f"[DEBUG] Weight data: raw={raw_value}, div={division}, res={resolution}g, status=0x{status:02X}")
 
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
-            # Apply calibration: (raw - zero) * factor
-            self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
+            # CUMULATIVE MODE: Detect and handle rollovers (160g -> 120g)
+            if self.enable_cumulative and self.last_valid_raw > 0:
+                # If weight suddenly drops by more than 50g, assume rollover
+                weight_drop = self.last_valid_raw - self.raw_weight
+
+                if weight_drop > 50:  # Rollover detected
+                    print(f"[DEBUG] Rollover detected! {self.last_valid_raw:.1f}g -> {self.raw_weight:.1f}g (drop: {weight_drop:.1f}g)")
+                    # Assuming 100g rollover for BCD sensors
+                    self.cumulative_offset += 100
+                    print(f"[DEBUG] Cumulative offset now: {self.cumulative_offset}g")
+                elif weight_drop < -50:  # Unexpected jump up
+                    print(f"[DEBUG] Unexpected jump! {self.last_valid_raw:.1f}g -> {self.raw_weight:.1f}g")
+
+            # Apply cumulative offset
+            adjusted_raw = self.raw_weight + self.cumulative_offset
+
+            # Apply calibration: (adjusted_raw - zero) * factor
+            self.current_weight = (adjusted_raw - self.zero_offset) * self.calibration_factor
 
             # Allow negative values (don't force to 0)
             # This allows proper display of small negative readings
 
             # Save as last valid weight
+            self.last_valid_raw = self.raw_weight
             if raw_value > 0 or abs(self.current_weight) > 0.1:
                 self.last_valid_weight = self.current_weight
 
