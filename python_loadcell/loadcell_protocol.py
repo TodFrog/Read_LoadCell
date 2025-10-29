@@ -182,12 +182,12 @@ class LoadCellProtocol:
         # Weight data format depends on response length
         # 8-byte response: 2-byte BCD weight (bytes 6-7)
         # 9-byte response: 3-byte hex weight (bytes 5-6-7)
+        # USER FEEDBACK: raw_val 자체가 실제 무게와 같음 - 변환 불필요!
 
         if len(data) >= 9:
-            # 9-byte response: 3-byte weight in HEX (NOT BCD!)
+            # 9-byte response: 3-byte weight in HEX
             # Format: [byte5] [byte6] [byte7] = 24-bit hex value
-            # Example: 00 C5 1A (12g) -> 01 07 5B (15g)
-            # Difference: 16961 for 3g -> ~5654 per gram
+            # raw_val 자체가 실제 무게(g)와 동일 - 변환 없이 직접 사용
             byte5 = data[5]
             byte6 = data[6]
             byte7 = data[7]
@@ -195,8 +195,7 @@ class LoadCellProtocol:
             # Combine 3 bytes into single value
             raw_hex_value = (byte5 << 16) + (byte6 << 8) + byte7
 
-            # Convert to grams (calibration factor ~5654 per gram at resolution 0.1)
-            # But we'll use raw value and let resolution handle it
+            # raw_val 자체가 무게이므로 그대로 사용
             raw_weight = raw_hex_value
 
         else:
@@ -211,7 +210,7 @@ class LoadCellProtocol:
 
             raw_weight = (hundreds_digit * 1000) + (tens_digit * 100) + (ones_decimal_digit * 10) + final_digit
 
-        # Get resolution from table
+        # Get resolution from table (for reference only, not used in 9-byte mode)
         if division < len(LoadCellProtocol.RESOLUTION_TABLE):
             resolution = LoadCellProtocol.RESOLUTION_TABLE[division]
         else:
@@ -219,11 +218,9 @@ class LoadCellProtocol:
 
         # Calculate actual weight
         if len(data) >= 9:
-            # For 9-byte response: raw_weight is hex value
-            # Need to convert: ~5654 hex units = 1g at resolution 0.1g
-            # So: weight = (raw_weight / 5654) * 10 for 0.1g resolution
-            # Simplified: weight = raw_weight / 565.4
-            weight = raw_weight / 565.4  # Empirical calibration factor
+            # For 9-byte response: raw_weight IS the actual weight in grams
+            # No conversion needed!
+            weight = raw_weight
         else:
             # For 8-byte response: standard BCD calculation
             weight = resolution * raw_weight
