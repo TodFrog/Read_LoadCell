@@ -75,7 +75,32 @@ python3 loadcell_gui.py              # Test/debug GUI
 - Always clear buffer before sending new command to prevent data mixing
 - 115200 baud, 8N1 configuration
 
-#### 3. loadcell_gui.py
+#### 3. dual_loadcell.py ⭐
+**Purpose**: Production-ready dual load cell monitor
+
+**Key Features**:
+- ✅ Dual display: Monitors two load cells simultaneously
+- ✅ Address filtering: Automatically separates data by address (0x03, 0x04)
+- ✅ Independent calibration: Each load cell has own zero/factor
+- ✅ Checksum verification: Prevents data corruption
+- ✅ Side-by-side panels: Clear visual separation
+
+**Usage**:
+1. Connect USB with 2 load cells on same bus
+2. Each panel shows data from specific address
+3. Calibrate each load cell independently
+4. Real-time 20 FPS updates for both
+
+#### 4. simple_realtime.py
+**Purpose**: Single load cell real-time monitor
+
+**Key Features**:
+- ✅ Real-time: 20 FPS continuous measurement
+- ✅ Negative values allowed
+- ✅ Checksum verification
+- ✅ Optional address filtering
+
+#### 5. loadcell_gui.py
 **Purpose**: Test/debug GUI for protocol verification
 
 **Measurement Method**:
@@ -180,28 +205,52 @@ if data[4] & 0x80:
     weight = -weight
 ```
 
-### Linear Correction
-The load cell sensor requires linear correction after user calibration. Based on 499g calibration data from 8 measurement points:
+### Weight Calculation and Calibration
 
-```python
-actual_weight = correction_slope * measured + correction_intercept
-
-# Coefficients (derived from 8-point calibration after 499g calibration):
-correction_slope = 0.990527
-correction_intercept = -2.990644
-
-# Achieves RMS error of 11.16g across 51g-537g range
-```
-
-**Application order:**
+**Simple two-point calibration:**
 1. Zero offset: `zeroed = raw - zero_offset`
-2. Linear correction: `corrected = 0.990527 * zeroed + (-2.990644)`
-3. User calibration: `final = corrected * calibration_factor`
+2. User calibration: `final = zeroed * calibration_factor`
 
 **Important notes:**
 - Negative values are allowed and displayed (supports <20g measurements)
 - Sensor is pressure-sensitive: place objects in center for consistent readings
 - Different positions (center vs corners) yield different readings
+
+### Multi-Load Cell Environment (USB Bus)
+
+When multiple load cells share the same USB bus, data packets can mix. The following protections are implemented:
+
+**1. Checksum Verification:**
+```python
+# Checksum is last byte = sum of first 7 bytes & 0xFF
+expected_checksum = sum(rx_buffer[:7]) & 0xFF
+actual_checksum = rx_buffer[7]
+
+if expected_checksum != actual_checksum:
+    # Reject corrupted/mixed packet
+    discard_packet()
+```
+
+**2. Address Filtering (Optional):**
+```python
+# Enable filtering for specific load cell
+filter_by_address = True
+target_address = 0x03  # Only accept packets from address 3
+
+if rx_buffer[0] != target_address:
+    discard_packet()
+```
+
+**3. Enhanced Buffer Clearing:**
+```python
+# Clear buffer TWICE before each read
+clear_rx_buffer()
+time.sleep(0.001)  # 1ms delay
+clear_rx_buffer()  # Second clear
+send_command()
+```
+
+This prevents the "18g→15g" issue where packets from different sensors mix.
 
 ### Status Flags (Byte 3)
 - Bit 0: Zero error

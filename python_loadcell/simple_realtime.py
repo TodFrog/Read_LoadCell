@@ -45,11 +45,9 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.zero_offset = 0.0  # Zero point offset (raw sensor value)
         self.calibration_factor = 1.0  # User calibration factor for fine-tuning
 
-        # Linear correction (based on 499g calibration data)
-        # Formula: actual = correction_slope * measured + correction_intercept
-        # Derived from 8-point calibration: RMS error 11.16g
-        self.correction_slope = 0.990527
-        self.correction_intercept = -2.990644
+        # Multi-load cell support (for USB bus with multiple load cells)
+        self.filter_by_address = False  # Set to True to filter by specific address
+        self.target_address = 0x03  # Only accept data from this address (default: 3)
 
         # Initialize UI
         self.init_ui()
@@ -152,11 +150,11 @@ class SimpleRealtimeMonitor(QMainWindow):
 
         # Instructions
         instructions = QLabel(
-            "※ 선형 보정 적용됨 (RMS 오차 11g)\n"
             "1. 빈 상태에서 '영점 조절' 클릭\n"
             "2. 정확한 무게의 물체를 올림 (중앙)\n"
             "3. '무게 교정' 클릭 후 실제 무게 입력\n"
-            "※ 음수 표시 가능 (20g 미만 측정 지원)"
+            "※ 음수 표시 가능 / 체크섬 검증 활성화\n"
+            "※ USB 다중 로드셀 환경 대응"
         )
         instructions.setAlignment(Qt.AlignCenter)
         instructions.setStyleSheet("color: #27ae60; font-size: 11pt; padding: 20px;")
@@ -216,9 +214,16 @@ class SimpleRealtimeMonitor(QMainWindow):
     def read_weight(self):
         """Send weight read command - same as loadcell_gui.py on_read_weight()"""
         if self.is_connected and not self.waiting_for_response:
-            # IMPORTANT: Clear buffer before sending new command
-            # to prevent mixing old and new responses
+            # IMPORTANT: Clear buffer TWICE before sending new command
+            # Critical when multiple load cells on same USB bus
+            # First clear removes any stale data
             self.serial.clear_rx_buffer()
+            # Small delay to ensure buffer is truly empty
+            import time
+            time.sleep(0.001)  # 1ms delay
+            # Second clear ensures no data arrived during delay
+            self.serial.clear_rx_buffer()
+
             cmd = LoadCellProtocol.create_weight_read_command()
             self.serial.send_command(cmd)
             self.waiting_for_response = True
@@ -243,6 +248,29 @@ class SimpleRealtimeMonitor(QMainWindow):
             print(f"[DEBUG] Incomplete buffer: {len(rx_buffer)} bytes - {' '.join([f'{b:02X}' for b in rx_buffer])}")
             self.waiting_for_response = False
             return
+
+        # IMPORTANT: Filter by address if multiple load cells on same USB bus
+        if self.filter_by_address and len(rx_buffer) >= 1:
+            address = rx_buffer[0]
+            if address != self.target_address:
+                print(f"[DEBUG] Address mismatch! Got 0x{address:02X}, expected 0x{self.target_address:02X} - ignoring")
+                self.serial.clear_rx_buffer()
+                self.waiting_for_response = False
+                return
+
+        # IMPORTANT: Verify checksum to filter out corrupted/mixed data
+        # This is critical when multiple load cells are on the same USB bus
+        if len(rx_buffer) >= 8:
+            # Checksum is last byte, should equal sum of previous bytes & 0xFF
+            expected_checksum = sum(rx_buffer[:7]) & 0xFF
+            actual_checksum = rx_buffer[7]
+
+            if expected_checksum != actual_checksum:
+                print(f"[DEBUG] Checksum mismatch! Expected 0x{expected_checksum:02X}, got 0x{actual_checksum:02X}")
+                print(f"[DEBUG] Buffer: {' '.join([f'{b:02X}' for b in rx_buffer[:8]])}")
+                self.serial.clear_rx_buffer()
+                self.waiting_for_response = False
+                return
 
         # IMPORTANT: Check if this is a weight response
         # Sensor sends weight data with EITHER:
@@ -286,15 +314,8 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
-            # Step 1: Apply zero offset
-            zeroed = self.raw_weight - self.zero_offset
-
-            # Step 2: Apply linear correction
-            # actual = correction_slope * measured + correction_intercept
-            corrected = self.correction_slope * zeroed + self.correction_intercept
-
-            # Step 3: Apply user calibration factor
-            self.current_weight = corrected * self.calibration_factor
+            # Apply calibration: (raw - zero) * factor
+            self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
 
             # Allow negative values (don't force to 0)
             # This allows proper display of small negative readings
