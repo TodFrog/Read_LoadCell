@@ -41,10 +41,8 @@ class SimpleRealtimeMonitor(QMainWindow):
         self.current_weight = 0.0
         self.raw_weight = 0.0
 
-        # Cumulative weight tracking (to prevent sudden decreases)
+        # Weight tracking
         self.last_valid_raw = 0.0
-        self.cumulative_offset = 0  # Tracks 100g rollovers
-        self.enable_cumulative = True  # Enable cumulative mode
 
         # Calibration
         self.zero_offset = 0.0  # Zero point offset (raw sensor value)
@@ -320,32 +318,14 @@ class SimpleRealtimeMonitor(QMainWindow):
             # Store raw weight from sensor
             self.raw_weight = weight_data['weight']
 
-            # CUMULATIVE MODE: Detect and handle rollovers (160g -> 120g)
-            if self.enable_cumulative and self.last_valid_raw > 0:
-                # If weight suddenly drops by more than 50g, assume rollover
-                weight_drop = self.last_valid_raw - self.raw_weight
-
-                if weight_drop > 50:  # Rollover detected
-                    print(f"[DEBUG] Rollover detected! {self.last_valid_raw:.1f}g -> {self.raw_weight:.1f}g (drop: {weight_drop:.1f}g)")
-                    # Assuming 100g rollover for BCD sensors
-                    self.cumulative_offset += 100
-                    print(f"[DEBUG] Cumulative offset now: {self.cumulative_offset}g")
-                elif weight_drop < -50:  # Unexpected jump up
-                    print(f"[DEBUG] Unexpected jump! {self.last_valid_raw:.1f}g -> {self.raw_weight:.1f}g")
-
-            # Apply cumulative offset
-            adjusted_raw = self.raw_weight + self.cumulative_offset
-
-            # Apply calibration: (adjusted_raw - zero) * factor
-            self.current_weight = (adjusted_raw - self.zero_offset) * self.calibration_factor
+            # Apply calibration: (raw - zero) * factor
+            self.current_weight = (self.raw_weight - self.zero_offset) * self.calibration_factor
 
             # Allow negative values (don't force to 0)
             # This allows proper display of small negative readings
 
             # Save as last valid weight
             self.last_valid_raw = self.raw_weight
-            if raw_value > 0 or abs(self.current_weight) > 0.1:
-                self.last_valid_weight = self.current_weight
 
             # Display calibrated weight
             self.weight_display.setText(f"{self.current_weight:.1f}")

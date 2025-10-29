@@ -179,24 +179,37 @@ class LoadCellProtocol:
         status = data[3]
         division = data[4] & 0x0F
 
-        # Raw weight is encoded in bytes 6-7 as 2-byte BCD (Binary Coded Decimal)
-        # Each hex nibble represents a decimal digit: 0x0123 = 123 decimal
-        # Example progression observed: 0x0016 -> 0x0099 -> 0x0100 -> 0x0200 -> 0x1000
-        # Format: [byte6: thousands/hundreds] [byte7: tens/ones]
-        #
-        # Convert BCD to decimal:
-        # - Extract each nibble (hex digit)
-        # - Treat each nibble as a decimal digit
-        byte6 = data[6]  # Thousands and hundreds digits
-        byte7 = data[7]  # Tens and ones digits
+        # Weight data format depends on response length
+        # 8-byte response: 2-byte BCD weight (bytes 6-7)
+        # 9-byte response: 3-byte hex weight (bytes 5-6-7)
 
-        # BCD conversion: 0xAB = (A * 10) + B in decimal
-        hundreds_digit = (byte6 >> 4) & 0x0F  # Upper nibble of byte 6
-        tens_digit = byte6 & 0x0F              # Lower nibble of byte 6
-        ones_decimal_digit = (byte7 >> 4) & 0x0F  # Upper nibble of byte 7
-        final_digit = byte7 & 0x0F             # Lower nibble of byte 7
+        if len(data) >= 9:
+            # 9-byte response: 3-byte weight in HEX (NOT BCD!)
+            # Format: [byte5] [byte6] [byte7] = 24-bit hex value
+            # Example: 00 C5 1A (12g) -> 01 07 5B (15g)
+            # Difference: 16961 for 3g -> ~5654 per gram
+            byte5 = data[5]
+            byte6 = data[6]
+            byte7 = data[7]
 
-        raw_weight = (hundreds_digit * 1000) + (tens_digit * 100) + (ones_decimal_digit * 10) + final_digit
+            # Combine 3 bytes into single value
+            raw_hex_value = (byte5 << 16) + (byte6 << 8) + byte7
+
+            # Convert to grams (calibration factor ~5654 per gram at resolution 0.1)
+            # But we'll use raw value and let resolution handle it
+            raw_weight = raw_hex_value
+
+        else:
+            # 8-byte response: 2-byte BCD weight (legacy format)
+            byte6 = data[6]
+            byte7 = data[7]
+
+            hundreds_digit = (byte6 >> 4) & 0x0F
+            tens_digit = byte6 & 0x0F
+            ones_decimal_digit = (byte7 >> 4) & 0x0F
+            final_digit = byte7 & 0x0F
+
+            raw_weight = (hundreds_digit * 1000) + (tens_digit * 100) + (ones_decimal_digit * 10) + final_digit
 
         # Get resolution from table
         if division < len(LoadCellProtocol.RESOLUTION_TABLE):
@@ -205,7 +218,15 @@ class LoadCellProtocol:
             resolution = 1
 
         # Calculate actual weight
-        weight = resolution * raw_weight
+        if len(data) >= 9:
+            # For 9-byte response: raw_weight is hex value
+            # Need to convert: ~5654 hex units = 1g at resolution 0.1g
+            # So: weight = (raw_weight / 5654) * 10 for 0.1g resolution
+            # Simplified: weight = raw_weight / 565.4
+            weight = raw_weight / 565.4  # Empirical calibration factor
+        else:
+            # For 8-byte response: standard BCD calculation
+            weight = resolution * raw_weight
 
         # Check sign bit (bit 7 of data[4])
         # If sign bit is set, weight is negative

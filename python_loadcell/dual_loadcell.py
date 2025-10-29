@@ -312,20 +312,25 @@ class DualLoadCellMonitor(QMainWindow):
             # Determine which load cell this data is from
             address = rx_buffer[0]
             raw_weight = weight_data['weight']
+            raw_value = weight_data['raw_weight']
+
+            print(f"[DEBUG] Addr=0x{address:02X}, raw_val={raw_value}, weight={raw_weight:.1f}g")
 
             if address == self.loadcell1_address:
                 # Update Load Cell 1
+                print(f"[DEBUG] -> Load Cell #1")
                 self.loadcell1_raw = raw_weight
                 self.loadcell1_weight = (raw_weight - self.loadcell1_zero) * self.loadcell1_factor
                 self.loadcell1_display.setText(f"{self.loadcell1_weight:.1f}")
 
             elif address == self.loadcell2_address:
                 # Update Load Cell 2
+                print(f"[DEBUG] -> Load Cell #2")
                 self.loadcell2_raw = raw_weight
                 self.loadcell2_weight = (raw_weight - self.loadcell2_zero) * self.loadcell2_factor
                 self.loadcell2_display.setText(f"{self.loadcell2_weight:.1f}")
             else:
-                print(f"[DEBUG] Unknown address: 0x{address:02X}")
+                print(f"[DEBUG] Unknown address: 0x{address:02X} (expected 0x{self.loadcell1_address:02X} or 0x{self.loadcell2_address:02X})")
 
     def calibrate_zero_1(self):
         """Calibrate zero for load cell 1"""
